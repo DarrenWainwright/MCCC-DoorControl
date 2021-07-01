@@ -17,17 +17,19 @@ class Distance():
     def __init__(self, triggerPin, echoPin, gpioPinRef: BoardType):
         self._triggerPin = triggerPin
         self._echoPin = echoPin
-        if gpioPinRef == BoardType.BCM:
-            GPIO.setmode(GPIO.BCM)
-        elif gpioPinRef == BoardType.BOARD:
-            GPIO.setmode(GPIO.BOARD)
-        else:
-            GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self._triggerPin, GPIO.OUT)
-        GPIO.setup(self._echoPin, GPIO.IN)  
+        self._boardType = gpioPinRef
+       
                 
     def distance(self, measure='cm'):
-        try:           
+        try: 
+            if self._boardType == BoardType.BCM:
+                GPIO.setmode(GPIO.BCM)
+            elif self._boardType == BoardType.BOARD:
+                GPIO.setmode(GPIO.BOARD)
+            else:
+                GPIO.setmode(GPIO.BOARD)
+            GPIO.setup(self._triggerPin, GPIO.OUT)
+            GPIO.setup(self._echoPin, GPIO.IN)            
             GPIO.output(self._triggerPin, True)     
             time.sleep(0.00001)
             GPIO.output(self._triggerPin, False)
@@ -48,11 +50,9 @@ class Distance():
                 print('improper choice of measurement: in or cm')
                 distance = None
 
-            
-            #GPIO.cleanup()
             return distance
-        except:
-            print('in exception')
-            distance = 100
+        except Exception as e:
+            print(e)
+            distance = 0
             GPIO.cleanup()
             return distance

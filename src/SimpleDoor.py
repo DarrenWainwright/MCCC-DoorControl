@@ -27,17 +27,16 @@ class SimpleDoor():
         self._stby = int(os.getenv("MOTOR_STBY"))
         self._distanceClosed = int(os.getenv("DISTANCE_WHEN_CLOSED"))
         self._distanceOpened = int(os.getenv("DISTANCE_WHEN_OPEN"))
-        boardType = os.getenv("BOARD_TYPE")
-        if boardType == BoardType.BCM:
+        self._boardType = os.getenv("BOARD_TYPE")
+        self._distance = Distance(int(os.getenv("DISTANCE_TRIGGER")), int(os.getenv("DISTANCE_ECHO")), self._boardType)
+
+    def _SetPinState(self, state: any):       
+        if self._boardType == BoardType.BCM:
             GPIO.setmode(GPIO.BCM)
-        elif boardType == BoardType.BOARD:
+        elif self._boardType == BoardType.BOARD:
             GPIO.setmode(GPIO.BOARD)
         else:
-            GPIO.setmode(GPIO.BOARD)
-
-        self._distance = Distance(int(os.getenv("DISTANCE_TRIGGER")), int(os.getenv("DISTANCE_ECHO")), boardType)
-
-    def _SetPinState(self, state: any):          
+            GPIO.setmode(GPIO.BOARD)   
         GPIO.setup(self._pwma, state) # Connected to PWMA
         GPIO.setup(self._ain1, state) # Connected to AIN1
         GPIO.setup(self._ain2, state) # Connected to AIN2
