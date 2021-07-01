@@ -1,4 +1,4 @@
-simulate = True
+simulate = False
 
 from threading import Event, Thread
 import threading
@@ -22,8 +22,10 @@ class BoardType(Enum):
     BOARD = 0
     BCM = 1
 
-class Motor(Thread):
-    def __init__(self, pwma, ain1, ain2, stby, gpioPinRef: BoardType):
+class Motor(threading.Thread):
+    def __init__(self, pwma, ain1, ain2, stby, gpioPinRef: BoardType): 
+        threading.Thread.__init__(self)  
+        print('motor2')
         self._pwma = pwma
         self._ain1 = ain1
         self._ain2 = ain2
@@ -34,9 +36,12 @@ class Motor(Thread):
             GPIO.setmode(GPIO.BOARD)
         else:
             GPIO.setmode(GPIO.BOARD)
+        #self._SetPinState(True)
+        #GPIO.cleanup()     
 
-    def _SetPinState(self, reset: bool):  
-        state = GPIO.LOW if reset == True else GPIO.OUT;  
+
+
+    def _SetPinState(self, state: any):          
         GPIO.setup(self._pwma, state) # Connected to PWMA
         GPIO.setup(self._ain1, state) # Connected to AIN1
         GPIO.setup(self._ain2, state) # Connected to AIN2
@@ -63,18 +68,19 @@ class Motor(Thread):
     # maxTime to run the motor in seconds
     def forward(self, maxTime: int):
         print("Start motor running forward")
-        self._SetPinState(True)
+        self._SetPinState(GPIO.OUT)
         self._RunMotor(True)
         Event.wait(maxTime)
-        # time.sleep(maxTime)
-        self._SetPinState(True)
-       
+        #time.sleep(maxTime)
+        self.stop()
+      
     def backward(self, maxTime: int):
-        self._SetPinState(True)
+        self._SetPinState(False)
         self._RunMotor(False)
         Event.wait(maxTime)
-        # time.sleep(maxTime)
-        self._SetPinState(True)
+        #time.sleep(maxTime)
+        self.stop()
 
-    def Stop(self):
-        self._SetPinState(True)
+    def stop(self):
+        self._SetPinState(GPIO.LOW)
+        GPIO.cleanup()
