@@ -14,6 +14,7 @@ load_dotenv()
 
 CONNECTION_STRING = os.getenv("IOT_HUB_CONNECTION")
 MOTOR_MAX_RUNTIME = float(os.getenv("MOTOR_MAX_RUNTIME"))
+doorState = "Closed"
 Door = SimpleDoor()
 
 def iothub_client_init():
@@ -36,8 +37,10 @@ def device_method_listener(device_client):
                 action = method_request.payload["action"]
                 if action == "open":
                     Door.open(MOTOR_MAX_RUNTIME)
+                    doorState = "Open"
                 elif action == "close":
                     Door.close(MOTOR_MAX_RUNTIME)
+                    doorState = "Closed"
                 else:
                     print("Unknown action " + action)
 
@@ -55,24 +58,6 @@ def device_method_listener(device_client):
 
         method_response = MethodResponse(method_request.request_id, response_status, payload=response_payload)
         device_client.send_method_response(method_response)
-
-        # if method_request.name == "SetTelemetryInterval":
-        #     try:
-        #         INTERVAL = int(method_request.payload)
-        #     except ValueError:
-        #         response_payload = {"Response": "Invalid parameter"}
-        #         response_status = 400
-        #     else:
-        #         response_payload = {"Response": "Executed direct method {}".format(method_request.name)}
-        #         response_status = 200
-        # else:
-        #     response_payload = {"Response": "Direct method {} not defined".format(method_request.name)}
-        #     response_status = 404
-
-        # method_response = MethodResponse(method_request.request_id, response_status, payload=response_payload)
-        # device_client.send_method_response(method_response)
-
-
 
 def iothub_client_run():
 
