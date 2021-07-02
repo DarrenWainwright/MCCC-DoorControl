@@ -4,10 +4,8 @@ if simulate:
     import SimulRPi.GPIO as GPIO
 else:
     import RPi.GPIO as GPIO
-import threading
 import time
 from enum import Enum
-from threading import Event, Thread
 
 class BoardType(Enum):
     BOARD = 0
