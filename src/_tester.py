@@ -1,7 +1,7 @@
 from SimpleDoor import SimpleDoor
 
 door = SimpleDoor()
-door.open(30)
+door.open(5)
 
 
 # from SimulRPi.GPIO import BOARD

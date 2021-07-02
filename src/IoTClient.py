@@ -14,7 +14,7 @@ load_dotenv()
 
 CONNECTION_STRING = os.getenv("IOT_HUB_CONNECTION")
 MOTOR_MAX_RUNTIME = float(os.getenv("MOTOR_MAX_RUNTIME"))
-doorState = "Closed"
+DOORSTATE = "Closed"
 Door = SimpleDoor()
 
 def iothub_client_init():
@@ -23,7 +23,7 @@ def iothub_client_init():
     return client
 
 def device_method_listener(device_client):
-
+    global DOORSTATE
     while True:
         method_request = device_client.receive_method_request()
         print (
@@ -37,10 +37,10 @@ def device_method_listener(device_client):
                 action = method_request.payload["action"]
                 if action == "open":
                     Door.open(MOTOR_MAX_RUNTIME)
-                    doorState = "Open"
+                    DOORSTATE = "Open"
                 elif action == "close":
                     Door.close(MOTOR_MAX_RUNTIME)
-                    doorState = "Closed"
+                    DOORSTATE = "Closed"
                 else:
                     print("Unknown action " + action)
 
@@ -55,6 +55,10 @@ def device_method_listener(device_client):
         else:
             response_payload = {"Response": "Direct method {} not defined".format(method_request.name)}
             response_status = 404
+        
+        if method_request.name == "GetDoorState":
+            response_payload = {"doorState": "{}".format(DOORSTATE)}
+            response_status = 200
 
         method_response = MethodResponse(method_request.request_id, response_status, payload=response_payload)
         device_client.send_method_response(method_response)
